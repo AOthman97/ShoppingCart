@@ -8,7 +8,7 @@ namespace ShoppingCart.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        public required string Name { get; set; }
+        public string Name { get; set; } = "";
         [DisplayName("Display Order")]
         public int DisplayOrder { get; set; }
         public DateTime CreationDate { get; set; } = DateTime.Now;
