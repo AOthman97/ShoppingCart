@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShoppingCart.DataAccess.Interfaces;
 using ShoppingCart.DataAccess.ViewModels;
+using ShoppingCart.Models;
 
 namespace ShoppingCart.Web.Areas.Admin.Controllers
 {
@@ -30,67 +31,94 @@ namespace ShoppingCart.Web.Areas.Admin.Controllers
             return View();
         }
 
-        // GET: CategoryController/Create
-        public ActionResult Create()
+        // GET: CategoryController/CreateUpdate/5
+        public ActionResult CreateUpdate(int? id)
         {
-            return View();
+            CategoryViewModel viewModel = new();
+
+            if(id == null || id == 0)
+            {
+                return View(viewModel);
+            }
+            else
+            {
+                Category? category = _unitOfWork.Category.GetT(x => x.Id == id);
+
+                if (category != null)
+                    viewModel.Category = category;
+                else
+                    return NotFound();
+
+                if (viewModel.Category == null)
+                    return NotFound();
+                else
+                    return View(viewModel);
+            }
         }
 
-        // POST: CategoryController/Create
+        // POST: CategoryController/CreateUpdate/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult CreateUpdate(CategoryViewModel viewModel)
         {
-            try
+            if (ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+                try
+                {
+                    // Save
+                    if(viewModel.Category.Id == 0)
+                    {
+                        _unitOfWork.Category.Add(viewModel.Category);
+                        TempData["Success"] = "Created Successfully!";
+                    }
+                    else // Update
+                    {
+                        _unitOfWork.Category.Update(viewModel.Category);
+                        TempData["Success"] = "Updated Successfully!";
+                    }
 
-        // GET: CategoryController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: CategoryController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
+                    _unitOfWork.Save();
+                    return RedirectToAction("Index");
+                }
+                catch
+                {
+                    return RedirectToAction("Index");
+                }
             }
-            catch
+            else
             {
-                return View();
+                return RedirectToAction("Index");
             }
         }
 
         // GET: CategoryController/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(int? id)
         {
-            return View();
+            if(id == 0 || id == null)
+                return NotFound();
+
+            var category = _unitOfWork.Category.GetT(x => x.Id == id);
+
+            if (category == null)
+                return NotFound();
+
+            return View(category);
         }
 
         // POST: CategoryController/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult DeleteData(int? id)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var category = _unitOfWork.Category.GetT(x => x.Id == id);
+
+            if (category == null)
+                return NotFound();
+
+            _unitOfWork.Category.Delete(category);
+            _unitOfWork.Save();
+            TempData["Success"] = "Deleted Successfully!";
+            return RedirectToAction("Index");
         }
     }
 }

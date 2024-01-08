@@ -1,0 +1,29 @@
+﻿@model ShoppingCart.DataAccess.ViewModels.CategoryViewModel
+
+<form method="post">
+    <div class="border p-3 mt-3">
+        <div class="row pb-3">
+            <h2 class="text-primary">Category</h2>
+        </div>
+        <input type="hidden" asp-for="Category.Id" />
+        <div class="row mb-3">
+            <label asp-for="Category.Name"></label>
+            <input disabled asp-for="Category.Name" class="form-control" />
+            <span asp-validation-for="Category.Name" class="text-danger"></span>
+        </div>
+        <div class="row mb-3">
+            <label asp-for="Category.DisplayOrder"></label>
+            <input disabled asp-for="Category.DisplayOrder" class="form-control" />
+            <span asp-validation-for="Category.DisplayOrder" class="text-danger"></span>
+        </div>
+        <button class="btn btn-outline-danger" type="submit">Delete</button>
+    </div>
+
+    <a asp-action="Index" asp-controller="Category">Back to List</a>
+</form>
+
+@section scripts {
+    @{
+        <partial name="_ValidationScriptPartial" />
+    }
+}
